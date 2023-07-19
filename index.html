@@ -1,17 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Live Chat - Dark Theme</title>
-  <link rel="stylesheet" type="text/css" href="style.css">
+    <title>Live Chat</title>
+    <style>
+        /* CSS styles for the chat container */
+        .chat-container {
+            width: 400px;
+            height: 500px;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+        }
+        
+        /* CSS styles for the chat messages */
+        .message {
+            padding: 10px;
+            background-color: #f1f1f1;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+        
+        /* CSS styles for the user input field and button */
+        .user-input {
+            margin-top: 10px;
+        }
+    </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Live Chat</h1>
-    <div class="form">
-      <input type="text" id="roomCode" placeholder="Enter Room Code">
-      <button onclick="joinRoom()">Join Chat</button>
+    <div class="chat-container">
+        <div class="message">Welcome to the chat!</div>
     </div>
-  </div>
-  <script src="script.js"></script>
+    <div class="user-input">
+        <input type="text" id="message-input" placeholder="Type your message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    
+    <script>
+        function sendMessage() {
+            var messageInput = document.getElementById('message-input');
+            var message = messageInput.value;
+            
+            // Create a new message element
+            var messageElement = document.createElement('div');
+            messageElement.classList.add('message');
+            messageElement.innerText = message;
+            
+            // Add the message to the chat container
+            var chatContainer = document.querySelector('.chat-container');
+            chatContainer.appendChild(messageElement);
+            
+            // Clear the input field
+            messageInput.value = '';
+        }
+    </script>
 </body>
 </html>
