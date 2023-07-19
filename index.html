@@ -1,55 +1,100 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Live Chat</title>
+    <title>Real-Time Chat</title>
     <style>
-        /* CSS styles for the chat container */
-        .chat-container {
+        /* CSS styles for the chat interface */
+        .chat-window {
             width: 400px;
             height: 500px;
             border: 1px solid #ccc;
             overflow-y: scroll;
-        }
-        
-        /* CSS styles for the chat messages */
-        .message {
             padding: 10px;
-            background-color: #f1f1f1;
-            margin-bottom: 10px;
-            border-radius: 5px;
         }
         
-        /* CSS styles for the user input field and button */
-        .user-input {
+        .message {
+            margin-bottom: 10px;
+        }
+        
+        .message .sender {
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .message .timestamp {
+            font-size: 0.8em;
+            color: #777;
+        }
+        
+        .input-box {
+            width: 100%;
             margin-top: 10px;
         }
     </style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="message">Welcome to the chat!</div>
+    <div class="chat-window">
+        <!-- Chat messages will be displayed here -->
     </div>
-    <div class="user-input">
-        <input type="text" id="message-input" placeholder="Type your message..." />
+    
+    <div class="input-box">
+        <input id="messageInput" type="text" placeholder="Type your message">
         <button onclick="sendMessage()">Send</button>
     </div>
     
     <script>
+        const socket = new WebSocket("ws://localhost:8080"); // Replace with your server URL
+        
+        socket.onopen = () => {
+            console.log("Connected to WebSocket server");
+        };
+        
+        socket.onmessage = (event) => {
+            const message = JSON.parse(event.data);
+            displayMessage(message.sender, message.timestamp, message.content);
+        };
+        
         function sendMessage() {
-            var messageInput = document.getElementById('message-input');
-            var message = messageInput.value;
+            const input = document.getElementById("messageInput");
+            const message = input.value.trim();
             
-            // Create a new message element
-            var messageElement = document.createElement('div');
-            messageElement.classList.add('message');
-            messageElement.innerText = message;
+            if (message !== "") {
+                const timestamp = new Date().toLocaleTimeString();
+                const chatMessage = {
+                    sender: "Me",
+                    timestamp: timestamp,
+                    content: message
+                };
+                
+                socket.send(JSON.stringify(chatMessage));
+                displayMessage(chatMessage.sender, chatMessage.timestamp, chatMessage.content);
+                
+                input.value = "";
+            }
+        }
+        
+        function displayMessage(sender, timestamp, content) {
+            const chatWindow = document.querySelector(".chat-window");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = "message";
             
-            // Add the message to the chat container
-            var chatContainer = document.querySelector('.chat-container');
-            chatContainer.appendChild(messageElement);
+            const senderSpan = document.createElement("span");
+            senderSpan.className = "sender";
+            senderSpan.textContent = sender + ":";
             
-            // Clear the input field
-            messageInput.value = '';
+            const timestampSpan = document.createElement("span");
+            timestampSpan.className = "timestamp";
+            timestampSpan.textContent = timestamp;
+            
+            const contentP = document.createElement("p");
+            contentP.textContent = content;
+            
+            messageDiv.appendChild(senderSpan);
+            messageDiv.appendChild(timestampSpan);
+            messageDiv.appendChild(contentP);
+            
+            chatWindow.appendChild(messageDiv);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
         }
     </script>
 </body>
